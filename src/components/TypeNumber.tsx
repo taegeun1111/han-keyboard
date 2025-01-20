@@ -1,14 +1,56 @@
 import React, { useState } from "react";
 import { numericLayout } from "../constants/kioskKeyboardKoreanLayout";
 import styled from "styled-components";
+import { typeNumberKeyboardType } from "../types/kioskKeyboardInputType";
 
-const TypeNumber = () => {
+interface TypeNumberProps {
+  value: string | number;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const TypeNumber = ({ onChange, value }: TypeNumberProps) => {
+  const handleClick = (type: typeNumberKeyboardType | string) => {
+    let newValue: string;
+
+    switch (type) {
+      case "{bksp}":
+        newValue = value.toString().slice(0, -1);
+        break;
+      default:
+        newValue = value.toString() + type;
+        break;
+    }
+
+    // ChangeEvent 객체 생성
+    const event = {
+      target: {
+        value: newValue,
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    onChange(event);
+  };
+
+  const findNotNumber = (type: typeNumberKeyboardType | string) => {
+    // edge case
+    switch (type) {
+      case "{empty}":
+        return "";
+      case "{bksp}":
+        return <BackspaceIcon />;
+      default:
+        return type;
+    }
+  };
+
   return (
     <NumberContainer>
       {numericLayout.default.map((row, index) => (
         <NumberRowWrapper key={index}>
           {row.split(" ").map((key, index) => (
-            <NumberRow key={index}>{key}</NumberRow>
+            <NumberRow key={index} onClick={() => handleClick(key)}>
+              {findNotNumber(key)}
+            </NumberRow>
           ))}
         </NumberRowWrapper>
       ))}
@@ -17,6 +59,28 @@ const TypeNumber = () => {
 };
 
 export default TypeNumber;
+
+const BackspaceIcon = () => (
+  <BackspaceIconWrapper
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1"
+    stroke="currentColor"
+    className="size-4"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z"
+    />
+  </BackspaceIconWrapper>
+);
+
+const BackspaceIconWrapper = styled.svg`
+  width: 2rem;
+  height: auto;
+`;
 
 const NumberContainer = styled.div`
   display: flex;
@@ -42,7 +106,7 @@ const NumberRow = styled.div`
   border: 1px solid rgb(240, 240, 240);
   justify-content: center;
   align-items: center;
-  padding: 1.5rem 0;
+  height: 4.5rem;
   background-color: white;
   border-radius: 0.4rem;
   border-bottom: 1px solid rgb(181, 181, 181);

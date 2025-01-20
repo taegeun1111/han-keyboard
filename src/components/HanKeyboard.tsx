@@ -9,6 +9,7 @@ interface KioskKeyboardProps {
   inputType: KioskKeyboardInputType;
   show: boolean;
   onClose: () => void;
+  showOverlay: boolean;
 }
 
 const HanKeyboard = ({
@@ -17,6 +18,7 @@ const HanKeyboard = ({
   inputType,
   show,
   onClose,
+  showOverlay = false,
 }: KioskKeyboardProps) => {
   const [isKorean, setIsKorean] = useState(true);
   const [layoutName, setLayoutName] = useState("default");
@@ -48,13 +50,13 @@ const HanKeyboard = ({
     };
   }, [show, onClose]);
 
-  if (show) return null;
+  if (!show) return null;
 
   const renderKeyboard = () => {
     if (inputType === "number") {
       return (
         <KeyboardContent className="number">
-          <TypeNumber />
+          <TypeNumber onChange={onChange} value={value} />
           {/* keyboard number type section */}
         </KeyboardContent>
       );
@@ -73,7 +75,7 @@ const HanKeyboard = ({
 
   return (
     <ModalWrapper>
-      <ModalOverlay />
+      {showOverlay && <ModalOverlay />}
       <ModalContainer ref={modalRef}>
         <ModalHeader>
           <CloseButton onClick={onClose}>X</CloseButton>
@@ -86,7 +88,7 @@ const HanKeyboard = ({
 
 const ModalWrapper = styled.div`
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
   height: 100%;

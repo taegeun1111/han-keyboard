@@ -35,11 +35,13 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     border: none;
     outline: none;
+    font-size: 1rem;
   }
 
   input {
     border: 1px solid #ddd;
     outline: none;
+    font-size: 1rem;
   }
 `;
 
