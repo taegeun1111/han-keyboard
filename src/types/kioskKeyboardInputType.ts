@@ -1,3 +1,3 @@
-export type KioskKeyboardInputType = 'text' | 'number';
+export type KioskKeyboardInputType = "text" | "number";
 
-export type typeNumberKeyboardType = 'empty' | 'bksp' ;
+export type TypeNumberKeyboardType = "empty" | "bksp";

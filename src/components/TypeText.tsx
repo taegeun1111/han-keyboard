@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { numericLayout } from "../constants/kioskKeyboardKoreanLayout";
+import { koreanLayout, numericLayout } from "../constants/kioskKeyboardKoreanLayout";
 import styled from "styled-components";
 import { TypeNumberKeyboardType } from "../types/kioskKeyboardInputType";
 
@@ -8,7 +8,7 @@ interface TypeNumberProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const TypeNumber = ({ onChange, value }: TypeNumberProps) => {
+const TypeText = ({ onChange, value }: TypeNumberProps) => {
 
   const handleClick = (type: TypeNumberKeyboardType | string) => {
     let newValue: string;
@@ -48,7 +48,7 @@ const TypeNumber = ({ onChange, value }: TypeNumberProps) => {
 
   return (
     <NumberContainer>
-      {numericLayout.default.map((row, index) => (
+      {koreanLayout.default.map((row, index) => (
         <NumberRowWrapper key={index}>
           {row.split(" ").map((key, index) => (
             <NumberRow key={index} onClick={() => handleClick(key)}>
@@ -61,7 +61,7 @@ const TypeNumber = ({ onChange, value }: TypeNumberProps) => {
   );
 };
 
-export default TypeNumber;
+export default TypeText;
 
 const BackspaceIcon = () => (
   <BackspaceIconWrapper

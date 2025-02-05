@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { KioskKeyboardInputType } from "../types/kioskKeyboardInputType";
 import styled from "styled-components";
 import TypeNumber from "./TypeNumber";
+import TypeText from "./TypeText";
 
-interface KioskKeyboardProps {
+interface HanKeyboardProps {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   inputType: KioskKeyboardInputType;
   show: boolean;
   onClose: () => void;
-  showOverlay: boolean;
+  showOverlay?: boolean;
 }
 
 const HanKeyboard = ({
@@ -19,7 +20,7 @@ const HanKeyboard = ({
   show,
   onClose,
   showOverlay = false,
-}: KioskKeyboardProps) => {
+}: HanKeyboardProps) => {
   const [isKorean, setIsKorean] = useState(true);
   const [layoutName, setLayoutName] = useState("default");
   const keyboardRef = useRef(null);
@@ -65,6 +66,7 @@ const HanKeyboard = ({
     if (inputType === "text") {
       return (
         <KeyboardContent className="text">
+          <TypeText onChange={onChange} value={value} />
           {/* keyboard text type section */}
         </KeyboardContent>
       );
