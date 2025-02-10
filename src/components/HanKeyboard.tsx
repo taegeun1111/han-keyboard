@@ -51,7 +51,7 @@ const HanKeyboard = ({
     };
   }, [show, onClose]);
 
-  if (!show) return null;
+  // if (!show) return null;
 
   const renderKeyboard = () => {
     if (inputType === "number") {
@@ -117,7 +117,7 @@ const ModalContainer = styled.div`
   padding: 0.4rem;
   z-index: 1001;
   animation: slideUp 0.3s ease-out;
-  background-color: #ececec;
+  background-color: #efefef;
 
   @keyframes slideUp {
     from {

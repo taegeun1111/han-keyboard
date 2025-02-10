@@ -13,6 +13,12 @@ export const getKeyType = (key: string): KeyType => {
       return "empty";
     case "{한/영}":
       return "language";
+    case "{tab}":
+      return "tab";
+    case "{capslock}":
+      return "capslock";
+    case "{return}":
+      return "return";
     default:
       return "normal";
   }
@@ -40,6 +46,15 @@ export const getKeyStyles = (keyType: KeyType) => {
     case "shift":
       return css`
         flex: 2.3;
+      `;
+    case "tab":
+      return css`
+        flex: 1;
+      `;
+    case "capslock":
+    case "return":
+      return css`
+        flex: 1;
       `;
     default:
       return css``;

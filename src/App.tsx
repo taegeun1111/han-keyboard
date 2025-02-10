@@ -7,7 +7,7 @@ import { KioskKeyboardInputType } from "./types/kioskKeyboardInputType";
 function App() {
   const [value, setValue] = useState("");
   const [show, setShow] = useState(false);
-  const [inputType, setInputType] = useState<KioskKeyboardInputType>("number");
+  const [inputType, setInputType] = useState<KioskKeyboardInputType>("text");
 
   return (
     <>

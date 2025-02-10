@@ -4,4 +4,7 @@ export type KeyType =
   | "empty"
   | "shift"
   | "language"
+  | "tab"
+  | "capslock"
+  | "return"
   | "normal";

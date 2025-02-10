@@ -1,6 +1,10 @@
-import React from "react";
-import { koreanLayout } from "../constants/kioskKeyboardKoreanLayout";
-import styled from "styled-components";
+import React, { useState } from "react";
+import {
+  englishLayout,
+  keyboardDisplay,
+  koreanLayout,
+} from "../constants/kioskKeyboardKoreanLayout";
+import styled, { css } from "styled-components";
 import { TypeNumberKeyboardType } from "../types/kioskKeyboardInputType";
 import { getKeyStyles, getKeyType } from "../utils/keyboardUtils";
 import { KeyType } from "../types/keyboardUtilTypes";
@@ -12,11 +16,15 @@ interface TypeNumberProps {
 
 interface NumberRowProps {
   $keyType: KeyType;
+  $isShiftPressed: boolean;
 }
 
 const TypeText = ({ onChange, value }: TypeNumberProps) => {
+  const [isShift, setIsShift] = useState(false);
+  const [isKorean, setIsKorean] = useState(true);
+
   const handleClick = (type: TypeNumberKeyboardType | string) => {
-    let newValue: string;
+    let newValue: string = value.toString(); // 초기값 설정
 
     switch (type) {
       case "{bksp}":
@@ -24,23 +32,26 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
         break;
       case "{empty}":
         return;
+      case "{shift}":
+        setIsShift(!isShift);
+        return;
+      case "{한/영}":
+        setIsKorean(!isKorean);
+        return;
       default:
-        // 중괄호가 포함된 다른 문자열 처리
-        if (
-          typeof type === "string" &&
-          type.length !== 1 &&
-          type.includes("{") &&
-          type.includes("}")
-        ) {
-          newValue = value.toString() + type.replace(/[{}]/g, "");
+        // keyboardDisplay에서 값을 찾아보고, 없으면 기본 처리
+        if (typeof type === "string" && type.includes("{")) {
+          const displayValue =
+            keyboardDisplay[type as keyof typeof keyboardDisplay];
+          if (displayValue) {
+            newValue = value.toString() + displayValue;
+          }
         } else {
-          // 일반 숫자나 문자의 경우
           newValue = value.toString() + type;
         }
         break;
     }
 
-    // ChangeEvent 객체 생성
     const event = {
       target: {
         value: newValue,
@@ -50,70 +61,66 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
     onChange(event);
   };
 
-  const findNotNumber = (type: TypeNumberKeyboardType | string) => {
-    // edge case
-    switch (type) {
-      case "{empty}":
-        return "";
-      case "{bksp}":
-        return <BackspaceIcon />;
-      default:
-        // 중괄호가 포함된 다른 문자열 처리
-        if (
-          typeof type === "string" &&
-          type.length !== 1 &&
-          type.includes("{") &&
-          type.includes("}")
-        ) {
-          return type.replace(/[{}]/g, "");
+  const findDisplayValue = (type: TypeNumberKeyboardType | string) => {
+    if (typeof type === "string" && type.includes("{")) {
+      // keyboardDisplay에서 표시할 값 찾기
+      const displayValue =
+        keyboardDisplay[type as keyof typeof keyboardDisplay];
+
+      // displayValue가 undefined나 null이 아닌 경우 (빈 문자열도 유효한 값으로 처리)
+      if (displayValue !== undefined && displayValue !== null) {
+        // SVG string이 포함된 경우 dangerouslySetInnerHTML 사용
+        if (displayValue.includes("<svg")) {
+          return <span dangerouslySetInnerHTML={{ __html: displayValue }} />;
         }
-        return type;
+        return displayValue;
+      }
+      // keyboardDisplay에 없는 경우 괄호 제거
+      return type.replace(/[{}]/g, "");
+    } else {
+      console.log(type);
+      return type;
     }
   };
 
+  const currentLayout = isKorean ? koreanLayout : englishLayout;
+
   return (
     <NumberContainer>
-      {koreanLayout.default.map((row, rowIndex) => (
-        <NumberRowWrapper key={rowIndex}>
-          {/* 공백을 기준으로 나누되, 중괄호 안의 내용은 보존 */}
-          {row.match(/({[^}]+}|\S+)/g)?.map((key, keyIndex) => (
-            <NumberRow
-              key={`${rowIndex}-${keyIndex}`}
-              onClick={() => handleClick(key)}
-              $keyType={getKeyType(key)}
-            >
-              {findNotNumber(key)}
-            </NumberRow>
+      {isShift
+        ? currentLayout.shift.map((row, rowIndex) => (
+            <NumberRowWrapper key={rowIndex}>
+              {row.match(/({[^}]+}|\S+)/g)?.map((key, keyIndex) => (
+                <NumberRow
+                  key={`${rowIndex}-${keyIndex}`}
+                  onClick={() => handleClick(key)}
+                  $keyType={getKeyType(key)}
+                  $isShiftPressed={key === "{shift}" && isShift}
+                >
+                  {findDisplayValue(key)}
+                </NumberRow>
+              ))}
+            </NumberRowWrapper>
+          ))
+        : currentLayout.default.map((row, rowIndex) => (
+            <NumberRowWrapper key={rowIndex}>
+              {row.split(" ").map((key, keyIndex) => (
+                <NumberRow
+                  key={`${rowIndex}-${keyIndex}`}
+                  onClick={() => handleClick(key)}
+                  $keyType={getKeyType(key)}
+                  $isShiftPressed={key === "{shift}" && isShift}
+                >
+                  {findDisplayValue(key)}
+                </NumberRow>
+              ))}
+            </NumberRowWrapper>
           ))}
-        </NumberRowWrapper>
-      ))}
     </NumberContainer>
   );
 };
 
 export default TypeText;
-
-const BackspaceIcon = () => (
-  <BackspaceIconWrapper
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1"
-    stroke="currentColor"
-    className="size-4"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z"
-    />
-  </BackspaceIconWrapper>
-);
-
-const BackspaceIconWrapper = styled.svg`
-  width: 2rem;
-  height: auto;
-`;
 
 const NumberContainer = styled.div`
   display: flex;
@@ -142,11 +149,11 @@ const NumberRow = styled.div<NumberRowProps>`
   background-color: white;
   border-radius: 0.4rem;
   border-bottom: 1px solid rgb(181, 181, 181);
-  box-shadow: 0 0 3px -1px #0000004d;
+  box-shadow: 0 0 3px -1px #7c7c7c4d;
   box-sizing: border-box;
   font-weight: 300;
-  width: 4.3rem;
-  height: 4.3rem;
+  width: 3.3rem;
+  height: 3.3rem;
 
   &:active {
     background-color: rgb(250, 250, 250);
@@ -154,5 +161,19 @@ const NumberRow = styled.div<NumberRowProps>`
     transform: scale(0.98);
   }
 
+  & svg {
+    width: 2rem;
+    height: auto;
+  }
+
   ${(props) => getKeyStyles(props.$keyType)}
+
+  ${({ $isShiftPressed }) =>
+    $isShiftPressed &&
+    css`
+      background-color: #dedede;
+      color: #1e293b;
+      box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.01);
+      border: none;
+    `}
 `;
