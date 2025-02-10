@@ -1,15 +1,20 @@
-import React, { useState } from "react";
-import { koreanLayout, numericLayout } from "../constants/kioskKeyboardKoreanLayout";
+import React from "react";
+import { koreanLayout } from "../constants/kioskKeyboardKoreanLayout";
 import styled from "styled-components";
 import { TypeNumberKeyboardType } from "../types/kioskKeyboardInputType";
+import { getKeyStyles, getKeyType } from "../utils/keyboardUtils";
+import { KeyType } from "../types/keyboardUtilTypes";
 
 interface TypeNumberProps {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const TypeText = ({ onChange, value }: TypeNumberProps) => {
+interface NumberRowProps {
+  $keyType: KeyType;
+}
 
+const TypeText = ({ onChange, value }: TypeNumberProps) => {
   const handleClick = (type: TypeNumberKeyboardType | string) => {
     let newValue: string;
 
@@ -20,7 +25,18 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
       case "{empty}":
         return;
       default:
-        newValue = value.toString() + type;
+        // 중괄호가 포함된 다른 문자열 처리
+        if (
+          typeof type === "string" &&
+          type.length !== 1 &&
+          type.includes("{") &&
+          type.includes("}")
+        ) {
+          newValue = value.toString() + type.replace(/[{}]/g, "");
+        } else {
+          // 일반 숫자나 문자의 경우
+          newValue = value.toString() + type;
+        }
         break;
     }
 
@@ -42,16 +58,30 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
       case "{bksp}":
         return <BackspaceIcon />;
       default:
+        // 중괄호가 포함된 다른 문자열 처리
+        if (
+          typeof type === "string" &&
+          type.length !== 1 &&
+          type.includes("{") &&
+          type.includes("}")
+        ) {
+          return type.replace(/[{}]/g, "");
+        }
         return type;
     }
   };
 
   return (
     <NumberContainer>
-      {koreanLayout.default.map((row, index) => (
-        <NumberRowWrapper key={index}>
-          {row.split(" ").map((key, index) => (
-            <NumberRow key={index} onClick={() => handleClick(key)}>
+      {koreanLayout.default.map((row, rowIndex) => (
+        <NumberRowWrapper key={rowIndex}>
+          {/* 공백을 기준으로 나누되, 중괄호 안의 내용은 보존 */}
+          {row.match(/({[^}]+}|\S+)/g)?.map((key, keyIndex) => (
+            <NumberRow
+              key={`${rowIndex}-${keyIndex}`}
+              onClick={() => handleClick(key)}
+              $keyType={getKeyType(key)}
+            >
               {findNotNumber(key)}
             </NumberRow>
           ))}
@@ -94,6 +124,7 @@ const NumberContainer = styled.div`
 
 const NumberRowWrapper = styled.div`
   display: flex;
+  justify-content: center;
   width: 100%;
   gap: 0.4rem;
   margin-bottom: 0.4rem;
@@ -103,23 +134,25 @@ const NumberRowWrapper = styled.div`
   }
 `;
 
-const NumberRow = styled.div`
+const NumberRow = styled.div<NumberRowProps>`
   display: flex;
-  width: 33.3333333%;
   border: 1px solid rgb(240, 240, 240);
   justify-content: center;
   align-items: center;
-  height: 4.5rem;
   background-color: white;
   border-radius: 0.4rem;
   border-bottom: 1px solid rgb(181, 181, 181);
   box-shadow: 0 0 3px -1px #0000004d;
   box-sizing: border-box;
   font-weight: 300;
+  width: 4.3rem;
+  height: 4.3rem;
 
   &:active {
     background-color: rgb(250, 250, 250);
     box-shadow: none;
     transform: scale(0.98);
   }
+
+  ${(props) => getKeyStyles(props.$keyType)}
 `;

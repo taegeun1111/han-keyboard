@@ -105,7 +105,6 @@ const NumberRowWrapper = styled.div`
 
 const NumberRow = styled.div`
   display: flex;
-  width: 33.3333333%;
   border: 1px solid rgb(240, 240, 240);
   justify-content: center;
   align-items: center;
