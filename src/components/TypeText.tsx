@@ -17,11 +17,13 @@ interface TypeNumberProps {
 interface NumberRowProps {
   $keyType: KeyType;
   $isShiftPressed: boolean;
+  $isCapslockPressed: boolean;
 }
 
 const TypeText = ({ onChange, value }: TypeNumberProps) => {
   const [isShift, setIsShift] = useState(false);
   const [isKorean, setIsKorean] = useState(true);
+  const [isCapslock, setIsCapslock] = useState(false);
 
   const handleClick = (type: TypeNumberKeyboardType | string) => {
     let newValue: string = value.toString(); // 초기값 설정
@@ -35,6 +37,9 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
       case "{shift}":
         setIsShift(!isShift);
         return;
+      case "{capslock}":
+        setIsCapslock(!isCapslock);
+        return;
       case "{한/영}":
         setIsKorean(!isKorean);
         return;
@@ -45,9 +50,17 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
             keyboardDisplay[type as keyof typeof keyboardDisplay];
           if (displayValue) {
             newValue = value.toString() + displayValue;
+
+            if (isShift) {
+              setIsShift(false);
+            }
           }
         } else {
           newValue = value.toString() + type;
+
+          if (isShift) {
+            setIsShift(false);
+          }
         }
         break;
     }
@@ -78,7 +91,6 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
       // keyboardDisplay에 없는 경우 괄호 제거
       return type.replace(/[{}]/g, "");
     } else {
-      console.log(type);
       return type;
     }
   };
@@ -87,7 +99,7 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
 
   return (
     <NumberContainer>
-      {isShift
+      {isShift || isCapslock
         ? currentLayout.shift.map((row, rowIndex) => (
             <NumberRowWrapper key={rowIndex}>
               {row.match(/({[^}]+}|\S+)/g)?.map((key, keyIndex) => (
@@ -96,6 +108,7 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
                   onClick={() => handleClick(key)}
                   $keyType={getKeyType(key)}
                   $isShiftPressed={key === "{shift}" && isShift}
+                  $isCapslockPressed={key === "{capslock}" && isCapslock}
                 >
                   {findDisplayValue(key)}
                 </NumberRow>
@@ -110,6 +123,7 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
                   onClick={() => handleClick(key)}
                   $keyType={getKeyType(key)}
                   $isShiftPressed={key === "{shift}" && isShift}
+                  $isCapslockPressed={key === "{capslock}" && isCapslock}
                 >
                   {findDisplayValue(key)}
                 </NumberRow>
@@ -174,6 +188,13 @@ const NumberRow = styled.div<NumberRowProps>`
       background-color: #dedede;
       color: #1e293b;
       box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.01);
-      border: none;
+    `}
+
+  ${({ $isCapslockPressed }) =>
+    $isCapslockPressed &&
+    css`
+      background-color: #dedede;
+      color: #1e293b;
+      box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.01);
     `}
 `;
