@@ -8,10 +8,12 @@ import styled, { css } from "styled-components";
 import { TypeNumberKeyboardType } from "../types/kioskKeyboardInputType";
 import { getKeyStyles, getKeyType } from "../utils/keyboardUtils";
 import { KeyType } from "../types/keyboardUtilTypes";
+import * as Hangul from "hangul-js";
 
 interface TypeNumberProps {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  tabSize?: number;
 }
 
 interface NumberRowProps {
@@ -20,7 +22,7 @@ interface NumberRowProps {
   $isCapslockPressed: boolean;
 }
 
-const TypeText = ({ onChange, value }: TypeNumberProps) => {
+const TypeText = ({ onChange, value, tabSize = 4 }: TypeNumberProps) => {
   const [isShift, setIsShift] = useState(false);
   const [isKorean, setIsKorean] = useState(true);
   const [isCapslock, setIsCapslock] = useState(false);
@@ -31,6 +33,9 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
     switch (type) {
       case "{bksp}":
         newValue = value.toString().slice(0, -1);
+        break;
+      case "{tab}":
+        newValue = value.toString() + " ".repeat(tabSize);
         break;
       case "{empty}":
         return;
@@ -56,7 +61,15 @@ const TypeText = ({ onChange, value }: TypeNumberProps) => {
             }
           }
         } else {
-          newValue = value.toString() + type;
+          if (isKorean) {
+            // 한글 조합 처리
+            newValue = Hangul.assemble(
+              Hangul.disassemble(value.toString() + type)
+            );
+          } else {
+            // 영문 처리
+            newValue = value.toString() + type;
+          }
 
           if (isShift) {
             setIsShift(false);

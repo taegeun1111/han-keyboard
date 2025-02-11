@@ -2176,6 +2176,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^5.0.0"
     eslint-plugin-react-refresh: "npm:^0.4.16"
     globals: "npm:^15.14.0"
+    hangul-js: "npm:^0.2.6"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     styled-components: "npm:^6.1.14"
@@ -2185,6 +2186,13 @@ __metadata:
     vite-plugin-dts: "npm:^4.5.0"
   languageName: unknown
   linkType: soft
+
+"hangul-js@npm:^0.2.6":
+  version: 0.2.6
+  resolution: "hangul-js@npm:0.2.6"
+  checksum: 10c0/3bfd2cbbaeef5f42f9cf887a7f458d305d9b84dc087c7988a95a507ccfb60ff97bb13ec5fe0c0f59227333fb56b650be6137228903291b671516cc99bbac6310
+  languageName: node
+  linkType: hard
 
 "has-flag@npm:^4.0.0":
   version: 4.0.0

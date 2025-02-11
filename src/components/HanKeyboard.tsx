@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { KioskKeyboardInputType } from "../types/kioskKeyboardInputType";
 import styled from "styled-components";
 import TypeNumber from "./TypeNumber";
@@ -21,16 +21,7 @@ const HanKeyboard = ({
   onClose,
   showOverlay = false,
 }: HanKeyboardProps) => {
-  const [isKorean, setIsKorean] = useState(true);
-  const [layoutName, setLayoutName] = useState("default");
-  const keyboardRef = useRef(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (inputType === "number") {
-      setIsKorean(false);
-    }
-  }, [inputType]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -51,7 +42,7 @@ const HanKeyboard = ({
     };
   }, [show, onClose]);
 
-  // if (!show) return null;
+  if (!show) return null;
 
   const renderKeyboard = () => {
     if (inputType === "number") {
